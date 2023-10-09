@@ -18,6 +18,12 @@ test("Renders products list", async () => {
       description: "Product 1 description",
       price: 1,
       count: 1,
+      category: '',
+      image: '',
+      rating: {
+        count: 2,
+        rate: 2
+      }
     },
     {
       id: "2",
@@ -25,6 +31,12 @@ test("Renders products list", async () => {
       description: "Product 2 description",
       price: 2,
       count: 2,
+      category: '',
+      image: '',
+      rating: {
+        count: 2,
+        rate: 2
+      }
     },
   ];
   server.use(
