@@ -1,14 +1,14 @@
-service: my-store-app
+service: my-aws-bucket-app
 
 frameworkVersion: "3"
 
 provider:
   name: aws
-  runtime: nodejs14.x
+  runtime: nodejs18.x
   region: eu-west-1
   # setup profile for AWS CLI.
   # profile: node-aws
-
+configValidationMode: warn
 plugins:
   - serverless-finch
   # 'serverless-single-page-app-plugin' is a custom plugin that located .serverless_plugins folder.
@@ -19,7 +19,7 @@ plugins:
 
 custom:
   client:
-    bucketName: my-store-app
+    bucketName: my-aws-bucket-app
     distributionFolder: dist
   s3BucketName: ${self:custom.client.bucketName}
 
