@@ -24,6 +24,7 @@ export default function ProductsTable() {
       <Table aria-label="simple table">
         <TableHead>
           <TableRow>
+            <TableCell>Image</TableCell>
             <TableCell>Title</TableCell>
             <TableCell align="right">Description</TableCell>
             <TableCell align="right">Price</TableCell>
@@ -35,13 +36,17 @@ export default function ProductsTable() {
           {data.map((product) => (
             <TableRow key={product.id}>
               <TableCell component="th" scope="row">
+                <img width='50' height='50' src={product.image} alt='' />
+                
+              </TableCell>
+              <TableCell component="th" scope="row">
                 {product.title}
               </TableCell>
               <TableCell align="right">{product.description}</TableCell>
               <TableCell align="right">
                 {formatAsPrice(product.price)}
               </TableCell>
-              <TableCell align="right">{product.count}</TableCell>
+              <TableCell align="right">{product.rating.count}</TableCell>
               <TableCell align="right">
                 <Button
                   size="small"

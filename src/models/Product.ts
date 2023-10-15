@@ -8,14 +8,12 @@ export const ProductSchema = Yup.object({
   category: Yup.string(),
   image: Yup.string(),
   rating: Yup.object({
-    rate: Yup.number(),
-    count: Yup.number(),
+    rate: Yup.number().integer().min(0).required().defined().default(0),
+    count: Yup.number().integer().min(0).required().defined().default(0),
   })
 });
 
-export const AvailableProductSchema = ProductSchema.shape({
-  count: Yup.number().integer().min(0).required().defined().default(0),
-});
+export const AvailableProductSchema = ProductSchema;
 
 export type Product = Yup.InferType<typeof ProductSchema>;
 export type AvailableProduct = Yup.InferType<typeof AvailableProductSchema>;

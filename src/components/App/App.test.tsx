@@ -17,7 +17,6 @@ test("Renders products list", async () => {
       title: "Product 1",
       description: "Product 1 description",
       price: 1,
-      count: 1,
       category: '',
       image: '',
       rating: {
@@ -30,7 +29,6 @@ test("Renders products list", async () => {
       title: "Product 2",
       description: "Product 2 description",
       price: 2,
-      count: 2,
       category: '',
       image: '',
       rating: {
