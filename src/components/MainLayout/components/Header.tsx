@@ -24,8 +24,8 @@ export default function Header() {
   };
 
   return (
-    <AppBar position="relative">
-      <Toolbar>
+    <AppBar position="relative" color="secondary">
+      <Toolbar color="black">
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           <Link
             component={RouterLink}
@@ -33,7 +33,7 @@ export default function Header() {
             underline="none"
             to="/"
           >
-            My Store!
+            Clothing store!
           </Link>
         </Typography>
 
