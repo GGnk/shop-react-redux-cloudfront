@@ -20,7 +20,7 @@ export default function Products() {
 
   return (
     <Grid container spacing={4}>
-      {data.map(({ count, ...product }, index) => (
+      {data.map((product) => (
         <Grid item key={product.id} xs={12} sm={6} md={4}>
           <Card
             sx={{ height: "100%", display: "flex", flexDirection: "column" }}

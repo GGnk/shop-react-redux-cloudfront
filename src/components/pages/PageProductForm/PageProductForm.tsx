@@ -76,6 +76,28 @@ export default function PageProductForm() {
                     required
                   />
                 </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    component={TextField}
+                    name="category"
+                    label="Category"
+                    fullWidth
+                    autoComplete="off"
+                    multiline
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    component={TextField}
+                    name="image"
+                    label="URL Image"
+                    fullWidth
+                    autoComplete="off"
+                    multiline
+                    required
+                  />
+                </Grid>
                 <Grid item xs={12} sm={4}>
                   <Field
                     component={TextField}
@@ -89,7 +111,17 @@ export default function PageProductForm() {
                 <Grid item xs={12} sm={4}>
                   <Field
                     component={TextField}
-                    name="count"
+                    name="rating.rate"
+                    label="Rate"
+                    fullWidth
+                    autoComplete="off"
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Field
+                    component={TextField}
+                    name="rating.count"
                     label="Count"
                     fullWidth
                     autoComplete="off"
