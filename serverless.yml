@@ -1,14 +1,14 @@
-service: my-store-app
-
+service: second-bucket-app
 frameworkVersion: "3"
 
 provider:
   name: aws
-  runtime: nodejs14.x
+  runtime: nodejs16.x
+  profile: aws-training
   region: eu-west-1
   # setup profile for AWS CLI.
   # profile: node-aws
-
+configValidationMode: warn
 plugins:
   - serverless-finch
   # 'serverless-single-page-app-plugin' is a custom plugin that located .serverless_plugins folder.
@@ -19,7 +19,7 @@ plugins:
 
 custom:
   client:
-    bucketName: my-store-app
+    bucketName: second-bucket-app
     distributionFolder: dist
   s3BucketName: ${self:custom.client.bucketName}
 
@@ -36,14 +36,13 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.s3BucketName}
-        AccessControl: PublicRead
+        AccessControl: Private
+        PublicAccessBlockConfiguration:
+          BlockPublicPolicy: false
         WebsiteConfiguration:
           IndexDocument: index.html
           ErrorDocument: index.html
-        # VersioningConfiguration:
-        #   Status: Enabled
-
-    ## Specifying the policies to make sure all files inside the Bucket are avaialble to CloudFront
+    ## Specifying the policies to make sure all files inside the Bucket are available to CloudFront
     WebAppS3BucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
@@ -51,22 +50,16 @@ resources:
           Ref: WebAppS3Bucket
         PolicyDocument:
           Statement:
-            - Sid: "AllowCloudFrontAccessIdentity"
+            - Sid: AllowCloudFrontServicePrincipal
               Effect: Allow
-              Action: s3:GetObject
-              Resource: arn:aws:s3:::${self:custom.s3BucketName}/*
               Principal:
-                AWS:
-                  Fn::Join:
-                    - " "
-                    - - "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity"
-                      - !Ref OriginAccessIdentity
-
-    OriginAccessIdentity:
-      Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-      Properties:
-        CloudFrontOriginAccessIdentityConfig:
-          Comment: Access identity between CloudFront and S3 bucket
+                Service: "cloudfront.amazonaws.com"
+              Action:
+                - s3:GetObject
+              Resource: arn:aws:s3:::${self:custom.s3BucketName}/*
+              Condition:
+                StringEquals:
+                  Aws:SourceArn: "arn:aws:cloudfront::383075539083:distribution/ETRYZDK94AQKU"
 
     ## Specifying the CloudFront Distribution to server your Web Application
     WebAppCloudFrontDistribution:
@@ -74,19 +67,17 @@ resources:
       Properties:
         DistributionConfig:
           Origins:
-            - DomainName: !GetAtt WebAppS3Bucket.RegionalDomainName
+            - DomainName: ${self:custom.s3BucketName}.s3.amazonaws.com
               ## An identifier for the origin which must be unique within the distribution
-              Id: myS3Origin
-              ## In case you don't want to restrict the bucket access use CustomOriginConfig and remove S3OriginConfig
-              S3OriginConfig:
-                OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${OriginAccessIdentity}
-              # CustomOriginConfig:
-              #   HTTPPort: 80
-              #   HTTPSPort: 443
-              #   OriginProtocolPolicy: https-only
-          Enabled: true
-          IPV6Enabled: true
-          HttpVersion: http2
+              Id: WebApp
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: https-only
+              ## In case you want to restrict the bucket access use S3OriginConfig and remove CustomOriginConfig
+              # S3OriginConfig:
+              #   OriginAccessIdentity: origin-access-identity/cloudfront/E127EXAMPLE51Z
+          Enabled: "true"
           ## Uncomment the following section in case you are using a custom domain
           # Aliases:
           # - mysite.example.com
@@ -98,27 +89,26 @@ resources:
               ResponseCode: 200
               ResponsePagePath: /index.html
           DefaultCacheBehavior:
-            AllowedMethods: ["GET", "HEAD", "OPTIONS"]
-            CachedMethods: ["GET", "HEAD", "OPTIONS"]
+            AllowedMethods:
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            ## The origin id defined above
+            TargetOriginId: WebApp
+            ## Defining if and how the QueryString and Cookies are forwarded to the origin which in this case is S3
             ForwardedValues:
-              Headers:
-                - Access-Control-Request-Headers
-                - Access-Control-Request-Method
-                - Origin
-                - Authorization
-              ## Defining if and how the QueryString and Cookies are forwarded to the origin which in this case is S3
-              QueryString: false
+              QueryString: "false"
               Cookies:
                 Forward: none
-            ## The origin id defined above
-            TargetOriginId: myS3Origin
             ## The protocol that users can use to access the files in the origin. To allow HTTP use `allow-all`
             ViewerProtocolPolicy: redirect-to-https
-            Compress: true
-            DefaultTTL: 0
           ## The certificate to use when viewers use HTTPS to request objects.
           ViewerCertificate:
-            CloudFrontDefaultCertificate: true
+            CloudFrontDefaultCertificate: "true"
           ## Uncomment the following section in case you want to enable logging for CloudFront requests
           # Logging:
           #   IncludeCookies: 'false'
@@ -127,7 +117,6 @@ resources:
 
   ## In order to print out the hosted domain via `serverless info` we need to define the DomainName output for CloudFormation
   Outputs:
-    WebAppS3BucketOutput:
-      Value: !Ref WebAppS3Bucket
     WebAppCloudFrontDistributionOutput:
-      Value: !GetAtt WebAppCloudFrontDistribution.DomainName
+      Value:
+        "Fn::GetAtt": [WebAppCloudFrontDistribution, DomainName]
